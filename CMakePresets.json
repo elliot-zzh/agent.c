@@ -1,0 +1,82 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "macos",
+      "displayName": "macOS Debug (Unix Makefiles)",
+      "description": "Debug build with the system AppleClang toolchain.",
+      "inherits": "base",
+      "generator": "Unix Makefiles",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "macos-release",
+      "displayName": "macOS Release (Unix Makefiles)",
+      "inherits": "macos",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "windows",
+      "displayName": "Windows (VS 2026 x64 + vcpkg)",
+      "description": "Set VCPKG_ROOT to your vcpkg checkout first; needs CMake 4.2+ for the VS 2026 generator. Multi-config: pick Debug or Release with the build preset.",
+      "inherits": "base",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "macos",
+      "configurePreset": "macos"
+    },
+    {
+      "name": "macos-release",
+      "configurePreset": "macos-release"
+    },
+    {
+      "name": "windows",
+      "displayName": "Windows Debug",
+      "configurePreset": "windows",
+      "configuration": "Debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-release",
+      "displayName": "Windows Release",
+      "inherits": "windows",
+      "configuration": "Release"
+    }
+  ]
+}
