@@ -25,6 +25,9 @@ add_executable(agent
     src/agent.c
 )
 target_include_directories(agent PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+add_library(cjson STATIC external/cJSON/cJSON.c)
+target_include_directories(cjson PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/external/cJSON")
+target_link_libraries(agent PRIVATE cjson)
 
 if(MSVC)
     target_compile_options(agent PRIVATE /W4)
