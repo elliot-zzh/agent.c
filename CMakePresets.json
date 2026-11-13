@@ -1,8 +1,8 @@
 {
   "version": 3,
   "cmakeMinimumRequired": {
-    "major": 3,
-    "minor": 21,
+    "major": 4,
+    "minor": 2,
     "patch": 0
   },
   "configurePresets": [
@@ -37,7 +37,7 @@
     {
       "name": "windows",
       "displayName": "Windows (VS 2026 x64 + vcpkg)",
-      "description": "Set VCPKG_ROOT to your vcpkg checkout first; needs CMake 4.2+ for the VS 2026 generator. Multi-config: pick Debug or Release with the build preset.",
+      "description": "Set VCPKG_ROOT to your vcpkg checkout first. Multi-config: pick Debug or Release with the build preset.",
       "inherits": "base",
       "generator": "Visual Studio 18 2026",
       "architecture": "x64",

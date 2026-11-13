@@ -4,7 +4,7 @@ A minimal C11 application built with CMake.
 
 ## Requirements
 
-- CMake 3.16 or newer (3.21+ for the presets below, 4.2+ for the Windows preset)
+- CMake 4.2 or newer (the VS 2026 generator in the Windows preset requires it)
 - A C11 compiler (GCC, Clang, AppleClang, MSVC, ...)
 
 ## Layout
@@ -35,8 +35,9 @@ default is `Debug` when the generator does not supply a build type.
 
 ## Presets
 
-`CMakePresets.json` needs CMake 3.21 or newer. Presets are gated by host OS and
-put their build trees in `build/<preset-name>/`.
+`CMakePresets.json` needs CMake 4.2 or newer, matching the project minimum.
+Presets are gated by host OS and put their build trees in
+`build/<preset-name>/`.
 
 ```sh
 # macOS (Unix Makefiles, system compiler)

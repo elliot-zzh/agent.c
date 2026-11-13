@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 4.2)
 
 project(agent_c
     VERSION 0.1.0
@@ -25,9 +25,15 @@ add_executable(agent
     src/agent.c
 )
 target_include_directories(agent PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+# Add cJSON
 add_library(cjson STATIC external/cJSON/cJSON.c)
 target_include_directories(cjson PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/external/cJSON")
 target_link_libraries(agent PRIVATE cjson)
+
+# Add libcURL
+find_package(CURL REQUIRED)
+target_link_libraries(agent PRIVATE CURL::libcurl)
 
 if(MSVC)
     target_compile_options(agent PRIVATE /W4)
