@@ -2,7 +2,7 @@
 #define USER_H
 
 typedef struct Config {
-    char* base_url;
+    char* base_url; // always trailed by '/'
     char* api_key;
     char* model_id;
 } Config;

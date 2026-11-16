@@ -1,5 +1,8 @@
 #include "term.h"
 #include "msg.h"
+#include "user.h"
+
+#include <stdio.h>
 
 int main(int argc, char **argv)
 {
@@ -11,6 +14,6 @@ int main(int argc, char **argv)
     err = term_loop(argc, argv);
 
     msg_close();
-    
+
     return err;
 }
