@@ -1,10 +1,16 @@
 #include "term.h"
-
-#include <stdio.h>
+#include "msg.h"
 
 int main(int argc, char **argv)
 {
+    int err = msg_init();
+    if(err != 0) return err;
+
     greetings();
 
-    return term_loop(argc, argv);
+    err = term_loop(argc, argv);
+
+    msg_close();
+    
+    return err;
 }

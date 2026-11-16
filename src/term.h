@@ -2,7 +2,7 @@
 #define TERM_H
 
 // print introduction and user guide
-void greetings();
+void greetings(void);
 
 // implements a REPL
 // use '>' to hint user input

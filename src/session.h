@@ -9,7 +9,7 @@ typedef struct Session {
 
 
 // return an empty, brand-new session
-Session create_session();
+Session create_session(void);
 
 // return an empty Session if the file does not exist
 Session read_session(const char* path);

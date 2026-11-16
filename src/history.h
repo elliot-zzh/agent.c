@@ -3,7 +3,7 @@
 
 #include "session.h"
 
-int create_history();
+Session create_history(void);
 
 // return an empty session if the file does not exist
 Session read_history(const char* path);

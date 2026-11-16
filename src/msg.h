@@ -5,10 +5,10 @@
 #include <curl/curl.h>
 #include <cJSON.h>
 
-int msg_init();
-int msg_close();
+int msg_init(void);
+int msg_close(void);
 
 // return NULL when error occurs
-const char* msg_send(const char* msg); 
+char* msg_send(const char* msg); 
 
 #endif
