@@ -32,5 +32,8 @@ Session create_session() {
 Session read_session(const char* path) {
 }
 
+void free_session(Session session) {
+}
+
 int add_msg(Session* session, const char* msg) {
 }

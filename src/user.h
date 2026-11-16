@@ -9,4 +9,6 @@ typedef struct Config {
 
 Config read_config(const char* path);
 
+void free_config(Config config);
+
 #endif

@@ -2,16 +2,17 @@
 #define SESSION_H
 
 typedef struct Msg {
-    char* msg;
-    char role[16]; // usually short, like "system", "developer", "user", "assistant" or tool
+    const char* msg;
+    const char* role;
 } Msg;
 
 #define THINKING_ON 1
 #define THINKING_OFF 0
 
 typedef struct Session {
-    char** msgs;
-    char* path; // where the session history is stored
+    Msg* msgs;
+    const char* path; // where the session history is stored
+    const char* model; // the model id
     unsigned int rounds;
     int thinking;
     char reasoning_effort[8]; // usually short, like "minimal", "low", "medium", "high", "xhigh", or "max"

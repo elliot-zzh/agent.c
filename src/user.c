@@ -32,3 +32,9 @@ Config read_config(const char* path) {
 
     return config;
 }
+
+void free_config(Config config) {
+    free(config.api_key);
+    free(config.base_url);
+    free(config.model_id);
+}
