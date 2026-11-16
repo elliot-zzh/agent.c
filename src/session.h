@@ -2,7 +2,7 @@
 #define SESSION_H
 
 typedef struct Msg {
-    const char* msg;
+    char* msg;
     const char* role;
 } Msg;
 
@@ -25,6 +25,8 @@ Session create_session(void);
 
 // return an empty Session if the file does not exist
 Session read_session(const char* path);
+
+void free_session(Session session);
 
 // append a user message to the session and modify the Session struct in-place
 // return 1 when error occurs
