@@ -22,6 +22,11 @@ endif()
 # One executable; all sources and private headers live under src/.
 add_executable(agent
     src/main.c
+    src/history.c
+    src/session.c
+    src/term.c
+    src/msg.c
+    src/user.c
 )
 target_include_directories(agent PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
