@@ -30,6 +30,7 @@ Config read_config(const char* path) {
 
     // TODO: better error handling
 
+    fclose(fp);
     return config;
 }
 
