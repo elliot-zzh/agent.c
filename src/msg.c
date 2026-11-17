@@ -115,10 +115,9 @@ static int append_msg(char* contents, Session* session) {
     return 0;
 }
 
-int msg_send(Session* session) {
+int msg_send(Session* session, Config config) {
     int return_value = 0;
 
-    Config config = read_config("config.txt");
     if(!config.api_key) return 1;
 
     CURL* curl;
