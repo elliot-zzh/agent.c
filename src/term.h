@@ -7,8 +7,9 @@ void greetings(void);
 // implements a REPL
 // use '>' to hint user input
 // input `/new` to switch to a brand-new session
+// input `/help` to print user manual
 // input `/quit` or /exit to exit the app
-// intput `/thinking enabled` to turn on thinking
+// input `/thinking enabled` to turn on thinking
 // input `/thinking disabled` to turn off thinking
 // input `/thinking xxx` to set reasoning efforts
 // for example `/thinking high` means setting reasoning efforts to `high`
