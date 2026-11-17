@@ -4,6 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+static Config drop_config(FILE* fp, Config config, int line, const char* reason) {
+    fprintf(stderr, "config: line %d %s\n", line, reason);
+    fclose(fp);
+    free_config(config);
+    return (Config){NULL, NULL, NULL};
+}
+
 Config read_config(const char* path) {
     FILE *fp = fopen(path, "r");
     if(!fp) {
@@ -28,7 +35,23 @@ Config read_config(const char* path) {
     fgets(config.model_id, sizeof(char) * 64, fp);
     config.model_id[strcspn(config.model_id, "\r\n")] = '\0';
 
-    // TODO: better error handling
+    if(strncmp(config.base_url, "http://", 7) && strncmp(config.base_url, "https://", 8)) {
+        return drop_config(fp, config, 1, "must start with http:// or https://");
+    }
+
+    size_t end = strlen(config.base_url);
+    while(end > 0 && config.base_url[end - 1] == '/') end--;
+    if(end >= 2 && config.base_url[end - 2] == 'v' && config.base_url[end - 1] == '1') {
+        return drop_config(fp, config, 1, "can't end with 'v1'");
+    }
+
+    if(strchr(config.api_key, ' ')) {
+        return drop_config(fp, config, 2, "can't contain a space");
+    }
+
+    if(config.model_id[0] == '\0') {
+        return drop_config(fp, config, 3, "can't be empty");
+    }
 
     fclose(fp);
     return config;
