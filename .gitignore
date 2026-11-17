@@ -25,3 +25,6 @@ out/
 
 # Ignore debug config
 config.txt
+
+# Ignore Finder temp files
+**/.DS_Store
