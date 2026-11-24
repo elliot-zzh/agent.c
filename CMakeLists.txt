@@ -27,6 +27,7 @@ add_executable(agent
     src/term.c
     src/msg.c
     src/user.c
+    src/shell.c
 )
 target_include_directories(agent PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
