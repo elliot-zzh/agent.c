@@ -2,6 +2,7 @@
 #define MSG_H
 
 #include "session.h"
+#include "user.h"
 
 #include <stdlib.h>
 #include <curl/curl.h>

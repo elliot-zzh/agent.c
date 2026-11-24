@@ -18,37 +18,7 @@ int msg_close() {
 }
 
 static char* build_body(const Session* session) {
-    cJSON* json = cJSON_CreateObject();
-
-    cJSON* model = cJSON_CreateString(session->model);
-    cJSON_AddItemToObject(json, "model", model);
-
-    cJSON* stream = cJSON_CreateBool(0);
-    cJSON_AddItemToObject(json, "stream", stream);
-
-    cJSON* reasoning_effort = cJSON_CreateString(session->reasoning_effort);
-    cJSON_AddItemToObject(json, "reasoning_effort", reasoning_effort);
-
-    // "thinking": { "type": "enabled" }
-    cJSON* thinking = cJSON_CreateObject();
-    cJSON* type;
-    if(session->thinking == THINKING_ON) type = cJSON_CreateString("enabled");
-    else type = cJSON_CreateString("disabled");
-    cJSON_AddItemToObject(thinking, "type", type);
-    cJSON_AddItemToObject(json, "thinking", thinking);
-
-    // "messages": [{"role": "xxx", "content": "xxx"}]
-    // TODO: move this part to a build_msg func
-    cJSON* messages = cJSON_CreateArray();
-    for(int i = 0; i < session->rounds; ++i) {
-        cJSON* item = cJSON_CreateObject();
-        cJSON* role = cJSON_CreateString(session->msgs[i].role);
-        cJSON* content = cJSON_CreateString(session->msgs[i].msg);
-        cJSON_AddItemToObject(item, "role", role);
-        cJSON_AddItemToObject(item, "content", content);
-        cJSON_AddItemToArray(messages, item);
-    }
-    cJSON_AddItemToObject(json, "messages", messages);
+    cJSON* json = build_session(session);
 
     char* body = cJSON_PrintUnformatted(json);
     cJSON_Delete(json);

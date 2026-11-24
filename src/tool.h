@@ -13,11 +13,20 @@ typedef struct ToolCall {
     char* name;
     char* id;
     char* argument;
-    char* content;
 } ToolCall;
 
-ToolCall tool_call(Tool tool, char* id, char* argument);
-cJSON* build_tool_call(ToolCall tool_call);
-cJSON* build_tool_msg(ToolCall tool_call);
+typedef struct ToolResult {
+    // ToolResult never own name or id
+    const char* name;
+    const char* id;
+    char* content;
+} ToolResult;
+
+void init_tool_list(void);
+// return non-zero if failing to register a tool
+int register_tool(Tool tool);
+ToolResult tool_call(ToolCall tool_call);
+cJSON* build_tool_calls(ToolCall* tool_calls, size_t n);
+cJSON* build_tool_msg(ToolResult tool_result);
 
 #endif
