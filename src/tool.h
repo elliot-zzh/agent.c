@@ -6,6 +6,7 @@
 typedef struct Tool {
     char* name;
     char* description;
+    char* parameters; // json string. naively no need to be parsed by the program. just sent to the server
     int (*tool_call)(const char* argument, char** content);
 } Tool;
 
