@@ -1,4 +1,5 @@
 #include "tool.h"
+#include "util.h"
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -33,8 +34,7 @@ ToolResult tool_call(ToolCall tool_call) {
     }
     if(!tool){
         // tool not found
-        content = (char*)malloc(sizeof(char) * (strlen(ERR_TOOL_NOT_FOUND) + 1));
-        strcpy(content, ERR_TOOL_NOT_FOUND);
+        content = copy_string(ERR_TOOL_NOT_FOUND);
         return (ToolResult) {
             .id = tool_call.id,
             .name = tool_call.name,
