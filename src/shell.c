@@ -1,24 +1,25 @@
-#include "shell.h"
-#include <stdio.h>
-#include <string.h>
-#include "util.h"
-
 #ifdef __APPLE__
 #define DEFAULT_SHELL "/bin/zsh"
+// _POSIX_C_SOURCE is required to pass compilation under strict c11
+#define _POSIX_C_SOURCE 200809L
 #endif
 #ifdef __linux__
 #define DEFAULT_SHELL "/bin/bash"
+#define _POSIX_C_SOURCE 200809L
 #endif
+
+#include "shell.h"
+#include "util.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <poll.h>
-#include <time.h>
-#include <errno.h>
 
 #if defined(__APPLE__) || defined(__linux__)
 
+#include <poll.h>
+#include <time.h>
+#include <errno.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
