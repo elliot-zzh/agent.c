@@ -46,7 +46,7 @@ cJSON* build_msg(const Msg* msg) {
     if(!strcmp(msg->role, "tool")) return build_tool_msg(msg->tool_result);
     cJSON* item = cJSON_CreateObject();
     cJSON* role = cJSON_CreateString(msg->role);
-    cJSON* content = cJSON_CreateString(msg->msg);
+    cJSON* content = msg->msg ? cJSON_CreateString(msg->msg) : cJSON_CreateNull();
     cJSON_AddItemToObject(item, "role", role);
     cJSON_AddItemToObject(item, "content", content);
     if(msg->tool_call_num > 0) {

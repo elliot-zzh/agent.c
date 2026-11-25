@@ -14,6 +14,6 @@ int msg_close(void);
 // send user message and append the reponse to the seesion history
 // does not include saving the record
 // return NULL when error occurs
-int msg_send(Session* session, Config config); 
+int msg_send(Session* session, const Config* config); 
 
 #endif

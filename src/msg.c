@@ -87,26 +87,23 @@ static int append_msg(char* contents, Session* session) {
     return 0;
 }
 
-int msg_send(Session* session, Config config) {
+int msg_send(Session* session, const Config* config) {
     int return_value = 0;
 
-    if(!config.api_key) return 1;
+    if(!config->api_key) return 1;
 
     CURL* curl;
     CURLcode result;
     curl = curl_easy_init();
-    if(!curl) {
-        free_config(config);
-        return 1;
-    }
+    if(!curl) return 1;
 
     char url[512];
-    strcpy(url, config.base_url);
+    strcpy(url, config->base_url);
     strcat(url, "v1/chat/completions");
 
     char api_key_header[512 + 256];
     strcpy(api_key_header, "Authorization: Bearer ");
-    strcat(api_key_header, config.api_key);
+    strcat(api_key_header, config->api_key);
 
     // build header
     struct curl_slist* headers = NULL;
@@ -160,7 +157,6 @@ end:
     free(mem.memory);
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
-    free_config(config);
 
     return return_value;
 }
