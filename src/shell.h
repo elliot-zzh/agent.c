@@ -17,13 +17,13 @@
       "\"type\": \"object\"," \
       "\"properties\": {" \
         "\"command\": { \"type\": \"string\", \"description\": \"Command to run\" }," \
-        "\"timeout\": { \"type\": \"integer\", \"description\": \"Timeout in ms, default 120000\" }" \
+        "\"timeout\": { \"type\": \"integer\", \"description\": \"Timeout in ms, default no timeout\" }" \
       "}," \
       "\"required\": [\"command\"]" \
     "}")
 
 // return the rc of the shell
-int run_shell(const char* command, char** res, size_t* res_len);
+int run_shell(const char* command, char** res, size_t* res_len, int timeout_ms);
 int shell_tool_call(const cJSON* json, char** content);
 
 #endif
