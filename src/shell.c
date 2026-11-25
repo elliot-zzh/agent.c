@@ -107,15 +107,15 @@ int run_shell(const char* command, char** res, size_t* res_len, int timeout_ms) 
 int shell_tool_call(const cJSON* json, char** content) {
     const cJSON* command = find_key(json, "command");
     if(!command || !cJSON_IsString(command)) {
-        *content = "error: wrong type of argument `command`. string expected";
+        *content = copy_string("error: wrong type of argument `command`. string expected");
         return -1;
     }
     const cJSON* timeout = find_key(json, "timeout");
-    int timeout_sec = timeout ? timeout->valueint : -1;
+    int timeout_ms = timeout ? timeout->valueint : -1;
     // TODO: handle unexpected arguments
     char* out = NULL;
     size_t out_len;
-    int rc = run_shell(command->valuestring, &out, &out_len, timeout_sec);
+    int rc = run_shell(command->valuestring, &out, &out_len, timeout_ms);
     if(rc == -1) {
         free(out);
         *content = copy_string("error: command failed to run or was killed by a signal");
