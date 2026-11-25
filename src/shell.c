@@ -1,4 +1,5 @@
 #include "shell.h"
+#include "util.h"
 
 #ifdef __APPLE__
 #define DEFAULT_SHELL "/bin/zsh"
@@ -15,6 +16,7 @@
 #include <sys/types.h>
 
 int run_shell(const char* command, char** res, size_t* res_len) {
+    // TODO: support timeout
     int fds[2];
     if(pipe(fds) == -1) return -1;
 
@@ -49,6 +51,18 @@ int run_shell(const char* command, char** res, size_t* res_len) {
     *res = buf;
     *res_len = len;
     return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+}
+
+int shell_tool_call(const cJSON* json, char** content) {
+    const cJSON* command = find_key(json, "command");
+    if(!command || !cJSON_IsString(command)) {
+        *content = "wrong type of argument `command`. string expected";
+        return -1;
+    }
+    // TODO: process timeout arg
+    // TODO: handle unexpected arguments
+    size_t content_len;
+    return run_shell(command->valuestring, content, &content_len);
 }
 
 #endif

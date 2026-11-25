@@ -1,11 +1,13 @@
 #include "tool.h"
 #include "util.h"
+#include "shell.h"
 
 #include <stddef.h>
 #include <stdlib.h>
 #include <cJSON.h>
 #include <string.h>
 
+// TODO: use hash table
 static Tool* tool_list;
 static size_t tool_num = 0;
 
@@ -13,8 +15,46 @@ static size_t tool_num = 0;
 
 #define ERR_TOOL_NOT_FOUND "error: tool not found"
 
-void init_tool_list() {
+void tool_list_init(void) {
     tool_list = (Tool*)malloc(sizeof(Tool) * MAX_TOOL_NUM);
+
+    // add built-in tools
+
+    // shell command running
+    register_tool((Tool) {
+        .name = copy_string("shell"),
+        .description = copy_string(SHELL_TOOL_DESC),
+        .parameters = copy_string(SHELL_TOOL_PARAM),
+        .tool_call = shell_tool_call,
+    });
+}
+
+void tool_list_close(void) {
+    for(int i = 0; i < tool_num; ++i) {
+        free(tool_list[i].name);
+        free(tool_list[i].description);
+        free(tool_list[i].parameters);
+    }
+    free(tool_list);
+}
+
+cJSON* build_tool_list(void) {
+    cJSON* array = cJSON_CreateArray();
+    for(int i = 0; i < tool_num; ++i) {
+        cJSON* tool = cJSON_CreateObject();
+        cJSON* type = cJSON_CreateString("function");
+        cJSON* function = cJSON_CreateObject();
+        cJSON* name = cJSON_CreateString(tool_list[i].name);
+        cJSON* description = cJSON_CreateString(tool_list[i].description);
+        cJSON* parameters = cJSON_Parse(tool_list[i].parameters);
+        cJSON_AddItemToObject(function, "name", name);
+        cJSON_AddItemToObject(function, "description", description);
+        cJSON_AddItemToObject(function, "parameters", parameters);
+        cJSON_AddItemToObject(tool, "type", type);
+        cJSON_AddItemToObject(tool, "function", function);
+        cJSON_AddItemToArray(array, tool);
+    }
+    return array;
 }
 
 int register_tool(Tool tool) {
@@ -41,11 +81,13 @@ ToolResult tool_call(ToolCall tool_call) {
             .content = content,
         };
     }
-    tool->tool_call(tool_call.argument, &content);
+    cJSON* json_argument = cJSON_Parse(tool_call.arguments);
+    tool->tool_call(json_argument, &content); // TODO: process rc
+    cJSON_Delete(json_argument);
     return (ToolResult) {
         .name = tool->name,
         .content = content,
-        .id=tool_call.id,
+        .id = tool_call.id,
     };
 }
 
@@ -61,7 +103,7 @@ cJSON* build_tool_calls(ToolCall* tool_calls, size_t n) {
         // "function": { "name": xxx, "arguments": xxx }
         cJSON* function = cJSON_CreateObject();
         cJSON* name = cJSON_CreateString(tool_calls[i].name);
-        cJSON* arguments = cJSON_CreateString(tool_calls[i].argument);
+        cJSON* arguments = cJSON_CreateString(tool_calls[i].arguments);
         cJSON_AddItemToObject(function, "name", name);
         cJSON_AddItemToObject(function, "arguments", arguments);
 
@@ -72,6 +114,29 @@ cJSON* build_tool_calls(ToolCall* tool_calls, size_t n) {
         cJSON_AddItemToArray(array, item);
     }
     return array;
+}
+
+size_t parse_tool_calls(const cJSON* json, ToolCall** tool_calls) {
+    // assume json is an array
+    // count tool calls
+    size_t tool_call_num = 0;
+    for(cJSON* node = json->child; node; node = node->next) ++tool_call_num;
+    *tool_calls = (ToolCall*)malloc(sizeof(ToolCall) * tool_call_num);
+    size_t i = 0;
+    for(cJSON* node = json->child; node; node = node->next, ++i) {
+        // { "id": xxx, "function": { "name": xxx, "arguments": xxx}}
+        // TODO: handle unexpected parsing
+        char* id = copy_string(find_key(node, "id")->valuestring);
+        const cJSON* function = find_key(node, "function");
+        char* name = copy_string(find_key(function, "name")->valuestring);
+        char* arguments = copy_string(find_key(function, "arguments")->valuestring);
+        (*tool_calls)[i] = (ToolCall) {
+            .id = id,
+            .name = name,
+            .arguments = arguments,
+        };
+    }
+    return tool_call_num;
 }
 
 cJSON* build_tool_msg(ToolResult tool_result) {

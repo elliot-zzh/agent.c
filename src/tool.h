@@ -6,14 +6,14 @@
 typedef struct Tool {
     char* name;
     char* description;
-    char* parameters; // json string. naively no need to be parsed by the program. just sent to the server
-    int (*tool_call)(const char* argument, char** content);
+    char* parameters; // json stored in string
+    int (*tool_call)(const cJSON* argument, char** content);
 } Tool;
 
 typedef struct ToolCall {
     char* name;
     char* id;
-    char* argument;
+    char* arguments;
 } ToolCall;
 
 typedef struct ToolResult {
@@ -23,11 +23,17 @@ typedef struct ToolResult {
     char* content;
 } ToolResult;
 
-void init_tool_list(void);
+void tool_list_init(void);
+void tool_list_close(void);
+
 // return non-zero if failing to register a tool
 int register_tool(Tool tool);
+cJSON* build_tool_list(void);
+
 ToolResult tool_call(ToolCall tool_call);
 cJSON* build_tool_calls(ToolCall* tool_calls, size_t n);
+size_t parse_tool_calls(const cJSON* json, ToolCall** tool_calls); // return the number of calls
+
 cJSON* build_tool_msg(ToolResult tool_result);
 
 #endif

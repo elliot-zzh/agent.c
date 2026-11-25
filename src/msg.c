@@ -1,6 +1,7 @@
 #include "msg.h"
 #include "user.h"
 #include "session.h"
+#include "util.h"
 
 #include <curl/curl.h>
 #include <cJSON.h>
@@ -25,19 +26,6 @@ static char* build_body(const Session* session) {
     return body;
 }
 
-static cJSON* find_key(cJSON* node, const char* key) {
-    // we assume *node is an Object
-    for(cJSON* i = node->child; i; i = i->next) {
-        if(!strcmp(i->string, key)) return i;
-    }
-}
-
-static cJSON* find_index(cJSON* node, size_t idx) {
-    node = node->child;
-    for(size_t i = 0; i < idx; i++) node = node->next;
-    return node;
-}
-
 struct MemoryBuffer {
     char* memory;
     size_t size;
@@ -60,6 +48,7 @@ static size_t write_cb(char* contents, size_t size, size_t nmemb, void* userp) {
 }
 
 // return non-zero on failing
+// TODO: move this to msg.c
 static int append_msg(char* contents, Session* session) {
     char* end;
     cJSON* json = cJSON_ParseWithOpts(contents, &end, 1);
@@ -69,18 +58,30 @@ static int append_msg(char* contents, Session* session) {
     }
 
     // find choices[0].message.content
-    cJSON* content = find_key(json, "choices");
+    // find choices[0].message.tool_calls
+    const cJSON* content = find_key(json, "choices");
     content = find_index(content, 0);
     content = find_key(content, "message");
+    const cJSON* tool_calls_json = find_key(content, "tool_calls");
     content = find_key(content, "content");
 
-    // append reponse
-    // note that content will be freed later
-    char* msg = (char*)malloc(sizeof(char) * (strlen(content->valuestring) + 1));
-    strcpy(msg, content->valuestring);
-    session->msgs[session->rounds] = (struct Msg) { msg, "assistant" };
-    session->rounds++;
+    // parse content
+    char* msg = NULL;
+    if(content && !cJSON_IsNull(content)) msg = copy_string(content->valuestring);
+    session->msgs[session->rounds] = (Msg) {
+        .role = "assistant",
+        .msg = msg,
+    };
 
+    // parse tool call
+    if(tool_calls_json) {
+        ToolCall* tool_calls;
+        size_t tool_call_num = parse_tool_calls(tool_calls_json, &tool_calls);
+        session->msgs[session->rounds].tool_call_num = tool_call_num;
+        session->msgs[session->rounds].tool_calls = tool_calls;
+    }
+
+    session->rounds++;
     cJSON_Delete(json);
 
     return 0;
