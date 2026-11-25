@@ -1,4 +1,6 @@
 #include "shell.h"
+#include <stdio.h>
+#include <string.h>
 #include "util.h"
 
 #ifdef __APPLE__
@@ -10,6 +12,8 @@
 
 #if defined(__APPLE__) || defined(__linux__)
 
+#include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -56,13 +60,26 @@ int run_shell(const char* command, char** res, size_t* res_len) {
 int shell_tool_call(const cJSON* json, char** content) {
     const cJSON* command = find_key(json, "command");
     if(!command || !cJSON_IsString(command)) {
-        *content = "wrong type of argument `command`. string expected";
+        *content = "error: wrong type of argument `command`. string expected";
         return -1;
     }
     // TODO: process timeout arg
     // TODO: handle unexpected arguments
-    size_t content_len;
-    return run_shell(command->valuestring, content, &content_len);
+    char* out = NULL;
+    size_t out_len;
+    int rc = run_shell(command->valuestring, &out, &out_len);
+    if(rc < 0) {
+        free(out);
+        *content = copy_string("error: command failed to run or was killed by a signal");
+        return rc;
+    }
+    char head[32];
+    int n = snprintf(head, sizeof(head), "\nexit code: %d\n", rc);
+    *content = (char*)malloc(sizeof(char) * (out_len + n + 1));
+    memcpy(*content, out, out_len);
+    memcpy(*content + out_len, head, n + 1);
+    free(out);
+    return rc;
 }
 
 #endif
