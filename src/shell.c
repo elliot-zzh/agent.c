@@ -10,11 +10,12 @@
 #define DEFAULT_SHELL "/bin/bash"
 #endif
 
-#if defined(__APPLE__) || defined(__linux__)
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#if defined(__APPLE__) || defined(__linux__)
+
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -57,6 +58,17 @@ int run_shell(const char* command, char** res, size_t* res_len) {
     return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
 }
 
+#endif
+
+#ifdef _WIN32
+
+// TODO: implement shell runner for Windows
+int run_shell(const char* command, char** res, size_t* res_len) {
+
+}
+
+#endif
+
 int shell_tool_call(const cJSON* json, char** content) {
     const cJSON* command = find_key(json, "command");
     if(!command || !cJSON_IsString(command)) {
@@ -81,5 +93,3 @@ int shell_tool_call(const cJSON* json, char** content) {
     free(out);
     return rc;
 }
-
-#endif
