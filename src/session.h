@@ -13,6 +13,12 @@ typedef struct Msg {
     ToolResult tool_result;
 } Msg;
 
+typedef struct TokenStat {
+    int cached_tokens;
+    int total_tokens;
+    float cache_hit_rate;
+} TokenStat;
+
 #define THINKING_ON 1
 #define THINKING_OFF 0
 
@@ -23,12 +29,15 @@ typedef struct Session {
     unsigned int rounds;
     int thinking;
     char reasoning_effort[8]; // usually short, like "minimal", "low", "medium", "high", "xhigh", or "max"
+    TokenStat token_stat;
 } Session;
 
 // append a user message to the session and modify the Session struct in-place
 // return 1 when error occurs
 int add_msg(Session* session, const char* msg);
 cJSON* build_msg(const Msg* msg);
+
+TokenStat parse_token_stat(const cJSON* json);
 
 // return an empty, brand-new session
 // should include a system prompt with the role "system"

@@ -1,5 +1,6 @@
 #include "session.h"
 #include "tool.h"
+#include "util.h"
 
 #include <cJSON.h>
 #include <string.h>
@@ -40,6 +41,25 @@ void free_session(Session session) {
 }
 
 int add_msg(Session* session, const char* msg) {
+}
+
+TokenStat parse_token_stat(const cJSON* json) {
+    // "usage": {
+    //   "prompt_tokens": xxx,
+    //   "completion_tokens": xxx,
+    //   "total_tokens": xxx,
+    //   "completion_tokens_details": { "reasoning_tokens": xxx },
+    //    "prompt_tokens_details": { "cached_tokens": xxx }
+    // }
+    const cJSON* prompt_tokens = find_key(json, "prompt_tokens");
+    const cJSON* total_tokens = find_key(json, "total_tokens");
+    const cJSON* cached_tokens = find_key(json, "prompt_tokens_details");
+    cached_tokens = find_key(cached_tokens, "cached_tokens");
+    return (TokenStat) {
+        .cached_tokens = cached_tokens->valueint,
+        .total_tokens = total_tokens->valueint,
+        .cache_hit_rate = prompt_tokens->valueint ? (float)(cached_tokens->valueint) / prompt_tokens->valueint : 0,
+    };
 }
 
 cJSON* build_msg(const Msg* msg) {

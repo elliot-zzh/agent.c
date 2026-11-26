@@ -48,7 +48,7 @@ static size_t write_cb(char* contents, size_t size, size_t nmemb, void* userp) {
 }
 
 // return non-zero on failing
-// TODO: move this to msg.c
+// TODO: make it functional. also move msg parsing to session.c / session.h
 static int append_msg(char* contents, Session* session) {
     char* end;
     cJSON* json = cJSON_ParseWithOpts(contents, &end, 1);
@@ -81,12 +81,19 @@ static int append_msg(char* contents, Session* session) {
         session->msgs[session->rounds].tool_calls = tool_calls;
     }
 
+    // parse token usage stat
+    cJSON* usage = find_key(json, "usage");
+    if(usage) {
+        session->token_stat = parse_token_stat(usage);
+    }
+
     session->rounds++;
     cJSON_Delete(json);
 
     return 0;
 }
 
+// TODO: only return the response, leave appending to the caller
 int msg_send(Session* session, const Config* config) {
     int return_value = 0;
 
