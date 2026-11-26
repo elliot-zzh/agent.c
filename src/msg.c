@@ -48,8 +48,8 @@ static size_t write_cb(char* contents, size_t size, size_t nmemb, void* userp) {
 }
 
 // return non-zero on failing
-// TODO: make it functional. also move msg parsing to session.c / session.h
-static int append_msg(char* contents, Session* session) {
+// TODO: move msg parsing to session.c / session.h
+static int append_msg(char* contents, Msg* msg, TokenStat* token_stat) {
     char* end;
     cJSON* json = cJSON_ParseWithOpts(contents, &end, 1);
     if(!json || end != contents + strlen(contents)) {
@@ -66,35 +66,33 @@ static int append_msg(char* contents, Session* session) {
     content = find_key(content, "content");
 
     // parse content
-    char* msg = NULL;
-    if(content && !cJSON_IsNull(content)) msg = copy_string(content->valuestring);
-    session->msgs[session->rounds] = (Msg) {
+    char* msg_str = NULL;
+    if(content && !cJSON_IsNull(content)) msg_str = copy_string(content->valuestring);
+    *msg = (Msg) {
         .role = "assistant",
-        .msg = msg,
+        .msg = msg_str,
     };
 
     // parse tool call
     if(tool_calls_json) {
         ToolCall* tool_calls;
         size_t tool_call_num = parse_tool_calls(tool_calls_json, &tool_calls);
-        session->msgs[session->rounds].tool_call_num = tool_call_num;
-        session->msgs[session->rounds].tool_calls = tool_calls;
+        msg->tool_call_num = tool_call_num;
+        msg->tool_calls = tool_calls;
     }
 
     // parse token usage stat
     cJSON* usage = find_key(json, "usage");
     if(usage) {
-        session->token_stat = parse_token_stat(usage);
+        *token_stat = parse_token_stat(usage);
     }
 
-    session->rounds++;
     cJSON_Delete(json);
 
     return 0;
 }
 
-// TODO: only return the response, leave appending to the caller
-int msg_send(Session* session, const Config* config) {
+int msg_send(const Session* session, const Config* config, Msg* msg, TokenStat* token_stat) {
     int return_value = 0;
 
     if(!config->api_key) return 1;
@@ -156,7 +154,7 @@ int msg_send(Session* session, const Config* config) {
         goto end;
     }
 
-    if(append_msg(mem.memory, session))
+    if(append_msg(mem.memory, msg, token_stat))
         return_value = 1;
 
 end:

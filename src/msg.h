@@ -11,9 +11,9 @@
 int msg_init(void);
 int msg_close(void);
 
-// send user message and append the reponse to the seesion history
+// send user message and parse the response
 // does not include saving the record
 // return NULL when error occurs
-int msg_send(Session* session, const Config* config); 
+int msg_send(const Session* session, const Config* config, Msg* msg, TokenStat* token_stat); 
 
 #endif

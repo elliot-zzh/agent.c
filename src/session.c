@@ -96,7 +96,6 @@ cJSON* build_session(const Session* session) {
     cJSON_AddItemToObject(json, "thinking", thinking);
 
     // "messages": [{"role": "xxx", "content": "xxx"}]
-    // TODO: move this part to a build_msg func
     cJSON* messages = cJSON_CreateArray();
     for(int i = 0; i < session->rounds; ++i) {
         cJSON_AddItemToArray(messages, build_msg(session->msgs + i));
