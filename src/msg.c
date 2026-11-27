@@ -49,7 +49,7 @@ static size_t write_cb(char* contents, size_t size, size_t nmemb, void* userp) {
 
 // return non-zero on failing
 // TODO: move msg parsing to session.c / session.h
-static int append_msg(char* contents, Msg* msg, TokenStat* token_stat) {
+static int parse_response(char* contents, Msg* msg, TokenStat* token_stat) {
     char* end;
     cJSON* json = cJSON_ParseWithOpts(contents, &end, 1);
     if(!json || end != contents + strlen(contents)) {
@@ -57,29 +57,11 @@ static int append_msg(char* contents, Msg* msg, TokenStat* token_stat) {
         return 1;
     }
 
-    // find choices[0].message.content
-    // find choices[0].message.tool_calls
-    const cJSON* content = find_key(json, "choices");
-    content = find_index(content, 0);
-    content = find_key(content, "message");
-    const cJSON* tool_calls_json = find_key(content, "tool_calls");
-    content = find_key(content, "content");
-
-    // parse content
-    char* msg_str = NULL;
-    if(content && !cJSON_IsNull(content)) msg_str = copy_string(content->valuestring);
-    *msg = (Msg) {
-        .role = "assistant",
-        .msg = msg_str,
-    };
-
-    // parse tool call
-    if(tool_calls_json) {
-        ToolCall* tool_calls;
-        size_t tool_call_num = parse_tool_calls(tool_calls_json, &tool_calls);
-        msg->tool_call_num = tool_call_num;
-        msg->tool_calls = tool_calls;
-    }
+    // find choices[0].message
+    const cJSON* message = find_key(json, "choices");
+    message = find_index(message, 0);
+    message = find_key(message, "message");
+    parse_msg(message, msg);
 
     // parse token usage stat
     cJSON* usage = find_key(json, "usage");
@@ -154,7 +136,7 @@ int msg_send(const Session* session, const Config* config, Msg* msg, TokenStat* 
         goto end;
     }
 
-    if(append_msg(mem.memory, msg, token_stat))
+    if(parse_response(mem.memory, msg, token_stat))
         return_value = 1;
 
 end:

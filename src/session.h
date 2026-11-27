@@ -36,6 +36,8 @@ typedef struct Session {
 // return 1 when error occurs
 int add_msg(Session* session, const char* msg);
 cJSON* build_msg(const Msg* msg);
+// return non-zero when error occurs
+int parse_msg(const cJSON* json, Msg* msg);
 
 TokenStat parse_token_stat(const cJSON* json);
 

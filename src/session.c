@@ -75,6 +75,30 @@ cJSON* build_msg(const Msg* msg) {
     return item;
 }
 
+int parse_msg(const cJSON* json, Msg* msg) {
+    // find json.content
+    // find json.tool_calls
+    const cJSON* tool_calls_json = find_key(json, "tool_calls");
+    const cJSON* content = find_key(json, "content");
+
+    // parse content
+    char* msg_str = NULL;
+    if(content && !cJSON_IsNull(content)) msg_str = copy_string(content->valuestring);
+    *msg = (Msg) {
+        .role = "assistant",
+        .msg = msg_str,
+    };
+
+    // parse tool call
+    if(tool_calls_json) {
+        ToolCall* tool_calls;
+        size_t tool_call_num = parse_tool_calls(tool_calls_json, &tool_calls);
+        msg->tool_call_num = tool_call_num;
+        msg->tool_calls = tool_calls;
+    }
+    return 0;
+}
+
 cJSON* build_session(const Session* session) {
     cJSON* json = cJSON_CreateObject();
 
