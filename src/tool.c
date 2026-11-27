@@ -82,7 +82,7 @@ ToolResult tool_call(ToolCall tool_call) {
         };
     }
     cJSON* json_argument = cJSON_Parse(tool_call.arguments);
-    tool->tool_call(json_argument, &content); // TODO: process rc
+    tool->tool_call(json_argument, &content);
     cJSON_Delete(json_argument);
     return (ToolResult) {
         .name = tool->name,

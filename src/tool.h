@@ -7,7 +7,7 @@ typedef struct Tool {
     char* name;
     char* description;
     char* parameters; // json stored in string
-    int (*tool_call)(const cJSON* argument, char** content);
+    int (*tool_call)(const cJSON* argument, char** content); // return non-zero on failing
 } Tool;
 
 typedef struct ToolCall {

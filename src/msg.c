@@ -48,7 +48,6 @@ static size_t write_cb(char* contents, size_t size, size_t nmemb, void* userp) {
 }
 
 // return non-zero on failing
-// TODO: move msg parsing to session.c / session.h
 static int parse_response(char* contents, Msg* msg, TokenStat* token_stat) {
     char* end;
     cJSON* json = cJSON_ParseWithOpts(contents, &end, 1);
