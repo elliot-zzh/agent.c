@@ -13,6 +13,7 @@ char* copy_string(const char* src) {
 }
 
 const cJSON* find_key(const cJSON* node, const char* key) {
+    if(!node) return NULL;
     // we assume *node is an Object
     for(cJSON* i = node->child; i; i = i->next) {
         if(!strcmp(i->string, key)) return i;
@@ -21,6 +22,7 @@ const cJSON* find_key(const cJSON* node, const char* key) {
 }
 
 const cJSON* find_index(const cJSON* node, size_t idx) {
+    if(!node) return NULL;
     node = node->child;
     for(size_t i = 0; node && i < idx; i++) node = node->next;
     return node;
