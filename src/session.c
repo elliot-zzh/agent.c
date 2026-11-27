@@ -126,5 +126,7 @@ cJSON* build_session(const Session* session) {
     }
     cJSON_AddItemToObject(json, "messages", messages);
 
+    cJSON_AddItemToObject(json, "tools", build_tool_list());
+
     return json;
 }
